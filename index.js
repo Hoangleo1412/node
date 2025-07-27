@@ -25,7 +25,7 @@ app.post('/api/upload', upload.single('image'), async (req, res) => {
     const imageBuffer = req.file.buffer;
 
     // Gửi ảnh về n8n webhook (Content-Type: image/png hoặc octet-stream)
-    const response = await fetch('https://kimun0608.app.n8n.cloud/webhook/05a82975-4179-4411-aa33-0671f10d4eb7/webhook', {
+    const response = await fetch('https://kimun0608.app.n8n.cloud/webhook/f224b459-69e9-49d0-aba4-1adf0a8440ec', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/octet-stream',
