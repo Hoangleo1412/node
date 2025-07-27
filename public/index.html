@@ -2,35 +2,73 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Telegram Mini App NodeJS</title>
+  <title>Telegram Mini App (Node.js)</title>
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link href="https://unpkg.com/cropperjs@1.5.13/dist/cropper.min.css" rel="stylesheet"/>
   <style>
     body { background: #f8fafc; display: flex; justify-content: center; align-items: center; height: 100vh; }
     .box { padding: 40px; background: white; border-radius: 20px; box-shadow: 0 4px 16px #0001; text-align: center; }
     button { padding: 14px 36px; background: #6366f1; color: white; font-size: 18px; border: none; border-radius: 10px; cursor: pointer; }
     button:hover { background: #4338ca; }
+    #preview { max-width: 320px; max-height: 320px; margin-top: 10px; border-radius: 10px; }
   </style>
-  <script>
-    async function sendToN8n() {
-      const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user || {};
-      const payload = {
-        user: telegramUser,
-        message: "Bạn vừa bấm nút GỬI về n8n (Node.js)!",
-        time: new Date().toISOString()
-      };
-      await fetch('/api/n8n', {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-      alert("Đã gửi về n8n thành công!");
-    }
-  </script>
 </head>
 <body>
   <div class="box">
     <h2>Telegram Mini App (Node.js)</h2>
-    <button onclick="sendToN8n()">Gửi về n8n</button>
+    <input type="file" id="fileInput" accept="image/*">
+    <br>
+    <img id="preview" style="display:none"/>
+    <br>
+    <button id="cropBtn" style="display:none">Cắt ảnh & Gửi về n8n</button>
   </div>
+
+  <script src="https://unpkg.com/cropperjs@1.5.13/dist/cropper.min.js"></script>
+  <script>
+    let cropper;
+    const fileInput = document.getElementById('fileInput');
+    const preview = document.getElementById('preview');
+    const cropBtn = document.getElementById('cropBtn');
+
+    fileInput.addEventListener('change', function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          preview.src = event.target.result;
+          preview.style.display = 'block';
+          if (cropper) cropper.destroy();
+          cropper = new Cropper(preview, {
+            aspectRatio: 1, // Square crop
+            viewMode: 1,
+            autoCropArea: 1,
+            movable: true,
+            zoomable: true
+          });
+          cropBtn.style.display = 'inline-block';
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+
+    cropBtn.addEventListener('click', async function() {
+      if (!cropper) return;
+      cropBtn.disabled = true;
+      cropBtn.innerText = 'Đang gửi...';
+      // Get cropped image as blob
+      cropper.getCroppedCanvas({
+        width: 1280,
+        height: 1280
+      }).toBlob(async function(blob) {
+        // Gửi ảnh về backend (Node.js), backend sẽ forward sang n8n
+        const formData = new FormData();
+        formData.append('image', blob, 'crop.png');
+        await fetch('/api/upload', { method: 'POST', body: formData });
+        alert("Ảnh đã gửi về n8n thành công!");
+        cropBtn.disabled = false;
+        cropBtn.innerText = 'Cắt ảnh & Gửi về n8n';
+      }, 'image/png', 1);
+    });
+  </script>
 </body>
 </html>
