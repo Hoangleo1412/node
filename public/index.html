@@ -63,7 +63,7 @@
         // Gửi ảnh về backend (Node.js), backend sẽ forward sang n8n
         const formData = new FormData();
         formData.append('image', blob, 'crop.png');
-        await fetch('/api/upload', { method: 'POST', body: formData });
+        await fetch('https://node-tuyk.onrender.com/api/upload', { method: 'POST', body: formData });
         alert("Ảnh đã gửi về n8n thành công!");
         cropBtn.disabled = false;
         cropBtn.innerText = 'Cắt ảnh & Gửi về n8n';
