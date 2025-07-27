@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Telegram Mini App NodeJS</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <style>
+    body { background: #f8fafc; display: flex; justify-content: center; align-items: center; height: 100vh; }
+    .box { padding: 40px; background: white; border-radius: 20px; box-shadow: 0 4px 16px #0001; text-align: center; }
+    button { padding: 14px 36px; background: #6366f1; color: white; font-size: 18px; border: none; border-radius: 10px; cursor: pointer; }
+    button:hover { background: #4338ca; }
+  </style>
+  <script>
+    async function sendToN8n() {
+      const telegramUser = window.Telegram?.WebApp?.initDataUnsafe?.user || {};
+      const payload = {
+        user: telegramUser,
+        message: "Bạn vừa bấm nút GỬI về n8n (Node.js)!",
+        time: new Date().toISOString()
+      };
+      await fetch('/api/n8n', {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+      alert("Đã gửi về n8n thành công!");
+    }
+  </script>
+</head>
+<body>
+  <div class="box">
+    <h2>Telegram Mini App (Node.js)</h2>
+    <button onclick="sendToN8n()">Gửi về n8n</button>
+  </div>
+</body>
+</html>
